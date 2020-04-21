@@ -9,7 +9,7 @@ Address1:string,
 address2:string,
 Email: string
 Role: string,
-Associations: string[]
+Associations?: string[]
 }
 
 export async function initDBconnection(){ 
@@ -26,6 +26,11 @@ export async function createUserAccount(args:UserAccountCreationParams){
         if(args!==undefined){
 
            const db = await initDBconnection();
+           if(args.Role === 'parent'){
+               if(args.Associations && args.Associations?.length < 1){
+                   throw new Error("Parents need to choose which student they're related to" )
+               }
+           }
            await db?.insert(args);
 
             MongoDriver.closeDriver();
@@ -47,6 +52,27 @@ export async function login(args: {
         if(args.password === user.password){
             return {user};
         }
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function fetchUsers(args: { 
+    searchText: string
+}){
+    try {
+        const db = await initDBconnection()
+
+        let query:any = {}
+
+        if(args.searchText){ 
+            query.$text = {
+                $search: args.searchText
+            }
+        }
+        const users = await db?.find(query).toArray();
+        
+        return users;
     } catch (error) {
         throw error;
     }

@@ -17,9 +17,19 @@ export async function fetchUserStats(args: {
       try {
 
           const db = await initDBconnection();          
-          
-          const scores = await db?.find(args);
+          let query:any = {};
+
+          if(args.username){
+              query.username = args.username;
+          }
+          if(args.game){
+              query.game= args.game;
+          }
+
+          const scores = await db?.find(query);
+
           await closeDbConnection();
+
           return scores; 
 
       } catch (error) {
