@@ -1,5 +1,5 @@
 import { MongoDriver } from "../mongo/mongoDriver";
-import { MongoClient } from "mongodb";
+import { MongoClient, Db } from "mongodb";
 
 
 export type UserAccountCreationParams = {
@@ -7,34 +7,35 @@ username: string,
 password: string,
 Address1:string,
 address2:string,
-Email: string
-Role: string,
-Associations?: string[]
+email: string
+role: string,
+associations?: string[]
 }
 
-export async function initDBconnection(){ 
-    const db = await MongoDriver.buildDriver()
-    return db?.collection('users');
-}
-
-export async function closeDbConnection(){
-    const db = await MongoDriver.closeDriver();
-}
 
 export async function createUserAccount(args:UserAccountCreationParams){
     try {
-        if(args!==undefined){
 
-           const db = await initDBconnection();
-           if(args.Role === 'parent'){
-               if(args.Associations && args.Associations?.length < 1){
+        console.log('result here')
+        const user = await MongoDriver.getInstance().fetchUser({username: args.username});
+        if(user){
+            throw new Error(`User with the username ${args.username} already exists. `)
+        }
+        
+           if(args.role === 'parent'){
+               if(args.associations === undefined){
                    throw new Error("Parents need to choose which student they're related to" )
+               }else{
+                await MongoDriver.getInstance().createUser(args);
                }
            }
-           await db?.insert(args);
+           if(args.role === 'student'){
+            const opResult = await MongoDriver.getInstance().createUser(args);
 
-            MongoDriver.closeDriver();
-        }
+           }else{
+               throw new Error('The user was not given a role')
+           }
+        
     } catch (error) {
         throw error;
     }
@@ -45,12 +46,17 @@ export async function login(args: {
     password: string,
 }){
     try {
-        const db = await initDBconnection()
-
-        const user = await db?.findOne({username: args.username});
-
-        if(args.password === user.password){
-            return {user};
+        console.log('trying')
+        const user = await MongoDriver.getInstance().fetchUser({username: args.username});
+        console.log(user)
+        if(user){
+            if(args.password === user.password){
+                return {user};
+            }else{ 
+                throw new Error('Incorrect username or password')
+            }
+        }else{ 
+            throw new Error('Incorrect username or password')
         }
     } catch (error) {
         throw error;
@@ -61,7 +67,6 @@ export async function fetchUsers(args: {
     searchText: string
 }){
     try {
-        const db = await initDBconnection()
 
         let query:any = {}
 
@@ -70,8 +75,7 @@ export async function fetchUsers(args: {
                 $search: args.searchText
             }
         }
-        const users = await db?.find(query).toArray();
-        
+        const users = await MongoDriver.getInstance().findUsers(query);
         return users;
     } catch (error) {
         throw error;

@@ -13,15 +13,6 @@ type donationParams = {
   state: string;
 };
 
-export async function initDBconnection() {
-  const db = await MongoDriver.buildDriver();
-  return db?.collection("donations");
-}
-
-export async function closeDbConnection() {
-  const db = await MongoDriver.closeDriver();
-}
-
 export async function logDonation(args: {
   amount: string;
   name: string;
@@ -35,9 +26,7 @@ export async function logDonation(args: {
   state: string;
 }) {
   try {
-    const db = await initDBconnection();
-    await db?.insertOne(args);
-    closeDbConnection();
+    await MongoDriver.getInstance().logDonation(args);
   } catch (error) {
     throw error;
   }
@@ -45,27 +34,23 @@ export async function logDonation(args: {
 
 export async function fetchDonations() {
   try {
-    const db = await initDBconnection();
-    const donations: donationParams[] = await db?.find<donationParams>().toArray() as any;
+    const donations = await MongoDriver.getInstance().findDonations();
     let donationSum = 0;
     for (const donation of donations) {
       donationSum += +donation.amount;
     }
-    const mappedDonations = donations?.map((donation) => {
-      donationSum += +donation.amount;
+    const mappedDonations = donations.map((donation) => {
       return {
         name: donation.name,
         amount: donation.amount,
       };
     });
-    
-    closeDbConnection();
+
 
     return {
       amount: donationSum,
       donations: mappedDonations,
     };
-    return donations;
   } catch (error) {
     throw error;
   }
