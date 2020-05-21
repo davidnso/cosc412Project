@@ -11,8 +11,8 @@ import com.api.models.Score;
 public class ScoreController {
 	
 	@GetMapping("/scores")
-	public Score[] fetchAllScore() {
-		return null;
+	public String fetchAllScore() {
+		return "Welcome to scores Piece";
 	}
 	
 	@GetMapping("/scores/{username}")
