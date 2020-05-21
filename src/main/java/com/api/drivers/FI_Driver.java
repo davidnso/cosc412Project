@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.api.interfaces.SearchQuery;
 import com.api.interfaces.SearchResult;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -14,9 +15,14 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class FI_Driver {
 
-	public static List<SearchResult> fetchFromKixify() { 
+	public static List<SearchResult> fetchFromKixify(SearchQuery query) { 
 		try {
-			return interactor.htmlUnitKixify();
+			if(query !=null && query.getText().length()>1) {
+				String formattedQuery = query.getText().replace(" ", "+").toLowerCase();
+				return interactor.htmlUnitKixify(formattedQuery, query.getSize(), query.getPrice(), null);
+			}else {
+				return new ArrayList<SearchResult>();
+			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,8 +73,26 @@ class interactor {
 
 		}
 }
-    public static List<SearchResult> htmlUnitKixify() throws InterruptedException { 
-    	String baseUrl = "https://www.kixify.com/search?s=jordan+5+metallic+black" ;
+    public static List<SearchResult> htmlUnitKixify(String queryText, String size,String price, String condition) throws InterruptedException { 
+    	String baseUrl = "https://www.kixify.com/search?s="+ queryText ;
+    	if(size!=null) {
+        	baseUrl = baseUrl.concat("&size[]="+size);
+
+    	}
+    	
+    	if(price!=null) {
+    		baseUrl = baseUrl.concat("&price="+price);
+    	}
+    	if(condition !=null) {
+    		if(!condition.contains("new") || !condition.contains("deadstock")) {
+        		baseUrl = baseUrl.concat("condition[]=Pre+Owned");
+
+        	}else {
+        		baseUrl = baseUrl.concat("condition[]=Brand+New");
+        	}
+    	}
+    	
+    	
 		WebClient client =  ClientBuilder.getInstance();
 		client.getOptions().setCssEnabled(false);
 		client.getOptions().setJavaScriptEnabled(false);
@@ -89,9 +113,13 @@ class interactor {
 					
 					System.out.println(item.getVisibleText());
 					String href = ((HtmlAnchor)item.getFirstByXPath(".//a[@class='thumbnail']")).getHrefAttribute();
-					
-					result.setImageUrl("www.kixify.com"+href);
-					result.setName(item.getVisibleText());
+					String imageUrl = ((HtmlElement)item.getFirstByXPath(".//img[@class='img-responsive imagecache imagecache-product_list']")).getAttribute("src");
+					String[] values = item.getVisibleText().split("[\n]");
+					result.setUrl("www.kixify.com"+href);
+					result.setImageUrl(imageUrl);
+					result.setName(values[0]);
+					result.setPrice(values[1]);
+					result.setSource("Kixify");
 					searchResults.add(result);
                 }
             return searchResults;    

@@ -5,6 +5,7 @@ public class SearchResult {
 	private String price;
 	private String url;
 	private String imageUrl;
+	private String source;
 	
 	public SearchResult(){
 		
@@ -54,6 +55,18 @@ public class SearchResult {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+
+
+	public String getSource() {
+		return source;
+	}
+
+
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 
 }
