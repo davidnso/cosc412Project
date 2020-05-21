@@ -88,23 +88,14 @@
               <additionalProperties>
                 <encoding.source>${project.build.sourceEncoding}</encoding.source>
                 <encoding.reporting>${project.reporting.outputEncoding}</encoding.reporting>
-                <java.source>${maven.compiler.source}</java.source>
-                <java.target>${maven.compiler.target}</java.target>
+                <java.source>13</java.source>
+                <java.target>13</java.target>
               </additionalProperties>
             </configuration>
           </execution>
         </executions>
       </plugin>
       
-      <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-compiler-plugin</artifactId>
-    <version>3.1</version>
-    <configuration>
-        <source>13</source>
-        <target>13</target>
-    </configuration>
-</plugin>
     </plugins>
   </build>
 
