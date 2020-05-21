@@ -14,12 +14,15 @@
 	<description>Project for cosc412 backend</description>
 
 	<properties>
-<java.version>1.8</java.version>
+	<java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <webjars-bootstrap.version>4.1.3</webjars-bootstrap.version>
     <webjars-jquery-ui.version>1.12.1</webjars-jquery-ui.version>
-    <webjars-jquery.version>3.3.1-1</webjars-jquery.version>	</properties>
+    <webjars-jquery.version>3.3.1-1</webjars-jquery.version>
+     <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    	</properties>
 
 	<dependencies>
 		<dependency>
@@ -84,8 +87,8 @@
               <additionalProperties>
                 <encoding.source>${project.build.sourceEncoding}</encoding.source>
                 <encoding.reporting>${project.reporting.outputEncoding}</encoding.reporting>
-                <java.source>1.8</java.source>
-                <java.target>1.8</java.target>
+                <source>${maven.compiler.target}</source>
+                    <target>${maven.compiler.source}</target>
               </additionalProperties>
             </configuration>
           </execution>
