@@ -9,6 +9,7 @@ import com.api.models.Donation;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
+@CrossOrigin
 public class SearchController {
 
 	@PostMapping(value ="/search",consumes = "application/json", produces = "application/json")

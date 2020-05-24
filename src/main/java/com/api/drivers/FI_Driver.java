@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.api.interfaces.SearchQuery;
@@ -45,6 +46,7 @@ public class FI_Driver {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		Collections.shuffle(fullResults);
 		return fullResults;
 	}
 	
@@ -85,6 +87,7 @@ class interactor {
 					HtmlAnchor anchor = (HtmlAnchor) item.getFirstByXPath(".//div//a");
 					HtmlElement itemName = (HtmlElement) item.getFirstByXPath(".//h3[@class='s-item__title']");
 					HtmlElement itemPrice = (HtmlElement) item.getFirstByXPath(".//span[@class='s-item__price']");
+					HtmlElement itemSrc = ((HtmlElement) item.getFirstByXPath(".//img[@class= 's-item__image-img' ]"));
 
 					if(anchor !=null) {
 						result.setUrl(anchor.getHrefAttribute());
@@ -94,6 +97,8 @@ class interactor {
 					if(itemName != null) {
 						result.setName(itemName.asText());
 						result.setPrice(itemPrice.asText());
+						if(itemSrc!=null)
+						result.setImageUrl(itemSrc.getAttribute("src"));
 						result.setSource("Ebay");
 						searchResults.add(result);
 					}
@@ -125,12 +130,13 @@ class interactor {
 }
     
     private static String buildEbayUrl(String category, String gender,String size, String price) {
+
     	String base = "https://www.ebay.com/sch";
     	if(category == null) { 
     		base =  base.concat("/11450");
 
     	}else {
-    		if(gender.contains("men")) {
+    		if(gender!=null && gender.contains("men")) {
     	    	switch(category) {
     	    	case "clothing": 
     	    		base = base.concat("/1059");
@@ -151,7 +157,7 @@ class interactor {
     	    	}
 
     		}
-    	    if(category.contains("women"))
+    	    if(gender!=null && gender.contains("women"))
     	    	switch(category) {
     	    	case "clothing": 
     	    		base = base.concat("/15724");
@@ -179,18 +185,20 @@ class interactor {
     }
     
     private static String appendQueryFilters(String url, String gender, String size, String price, String category) {
-    	if(category.contains("footwear"))
-    	switch(gender) {
-    	case "men": 
-    		url = url.concat("US%2520Shoe%2520Size%2520%2528Men%2527s%2529="+size);
-    		break;
-    	case "women": 
-    			url = url.concat("US%2520Shoe%2520Size%2520%2528Women%2527s%2529="+size);
-    		break;
-    		default:
-    	}
+//    	if(category.contains("footwear"))
+//    		if(gender!=null) {
+//    			switch(gender) {
+//    	    	case "men": 
+//    	    		url = url.concat("US%2520Shoe%2520Size%2520%2528Men%2527s%2529="+size);
+//    	    		break;
+//    	    	case "women": 
+//    	    			url = url.concat("US%2520Shoe%2520Size%2520%2528Women%2527s%2529="+size);
+//    	    		break;
+//    	    		default:
+//    	    	}
+//    		}
     	
-    	if(price.length() > 0) { 
+    	if(price!=null && price.length() > 0) { 
     		url = url.concat("&_udhi="+price);
     	}
     	
@@ -210,10 +218,10 @@ class interactor {
     	}
     	if(condition !=null) {
     		if(!condition.contains("new") || !condition.contains("deadstock")) {
-        		baseUrl = baseUrl.concat("condition[]=Pre+Owned");
+        		baseUrl = baseUrl.concat("&condition[]=Pre-Owned");
 
         	}else {
-        		baseUrl = baseUrl.concat("condition[]=Brand+New");
+        		baseUrl = baseUrl.concat("&condition[]=Brand+New");
         	}
     	}
     	
@@ -230,7 +238,7 @@ class interactor {
 				System.out.println("No items found !");
 				
 			}else{
-				System.out.println("page found: "+ page.getTitleText());
+				System.out.println("page found: "+ baseUrl);
 				List<HtmlElement> items = page.getByXPath("//div[contains(@class, 'col-xs-6 col-sm-3 col-md-3 product-teaser')]");
 				
 				for(HtmlElement item : items) {
